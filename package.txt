@@ -1,0 +1,3 @@
+flutter_svg
+shared_preferences
+webview_flutter
