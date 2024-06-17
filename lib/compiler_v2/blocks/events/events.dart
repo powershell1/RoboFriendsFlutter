@@ -105,7 +105,7 @@ class LoopEvent extends BlockFunctions {
     await super.runCode();
     // print(node['id']);
     int timeTake = DateTime.now().millisecondsSinceEpoch - startMs;
-    Future.delayed(Duration(milliseconds: timeTake < 100 ? 100 : 0), () async {
+    Future.delayed(Duration(milliseconds: timeTake < 100 ? 100 - timeTake : 0), () async {
       await runCode();
     });
     // print(ptr);
