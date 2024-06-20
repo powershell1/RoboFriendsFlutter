@@ -6,8 +6,7 @@ import 'blocks/dynamic/math.dart';
 import 'blocks/dynamic/variables.dart';
 import 'blocks/events/events.dart';
 import 'blocks/events/procedures_noreturn.dart';
-import 'blocks/servo.dart';
-import 'blocks/ultrasonic.dart';
+import 'blocks/sensors.dart';
 import 'compiler.dart';
 
 class BlocksBlueprint {
@@ -48,6 +47,12 @@ class BlocksBlueprint {
         return RotateServo();
       case 'ultrasonic_get':
         return UltrasonicGet();
+      case 'buzzer_set':
+        return ToneSet();
+      case 'motor_set':
+        return SetMotor();
+      case 'led_set':
+        return LedSet();
       case 'math_number':
         return MathNumber();
       case 'math_arithmetic':
