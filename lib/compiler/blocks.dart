@@ -1,7 +1,7 @@
 import 'blocks/functions/procedures_callnoreturn.dart';
 import 'blocks/functions/procedures_defnoreturn.dart';
 import 'blocks/logic/controls_if.dart';
-import 'blocks/motor/rotate_motor.dart';
+import 'blocks/motor/rotate_servo.dart';
 import 'blocks/variables/variables_set.dart';
 import 'blocks/loop/controls_repeat_ext.dart';
 import 'blocks/variables/math_change.dart';
@@ -13,7 +13,7 @@ class Blocks {
 
     'controls_repeat_ext': ControlsRepeatExt(),
 
-    'rotate_motor': RotateMotor(),
+    'rotate_servo': RotateServo(),
 
     'variables_set': VariablesSet(),
     'math_change': MathChange(),

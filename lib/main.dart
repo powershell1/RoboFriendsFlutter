@@ -130,7 +130,7 @@ class _AppState extends State<App> {
           String context = settings.name!.substring(9);
           if (context == 'code_ide') {
             late TextEditingController _controller = TextEditingController(
-              text: Platform.isAndroid ? 'https://powershell1.github.io/RoboWebpack/' : 'http://192.168.1.39:8080/'
+              text: Platform.isAndroid ? 'http://172.18.0.81:8080/' : '',
             );
             return MaterialPageRoute(
               builder: (context) => Scaffold(

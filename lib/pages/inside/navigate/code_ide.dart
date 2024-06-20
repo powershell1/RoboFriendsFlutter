@@ -45,6 +45,31 @@ class _CodeIDEState extends State<CodeIDE> {
     });
   }
 
+  Future<void> _bluetoothWarning(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Bluetooth is off'),
+          content: const Text(
+            'Please make sure that you enable bluetooth.'
+          ),
+          actions: <Widget>[
+            CupertinoButton(
+              child: const Text(
+                'ok',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<String> getJSON() async {
     String json = await _controller.runJavaScriptReturningResult('''
     (function() {
@@ -54,20 +79,27 @@ class _CodeIDEState extends State<CodeIDE> {
     if (Platform.isAndroid) {
       json = json.replaceAll('\\', '');
       // print(json);
-      json = json.substring(2, json.length - 2);
+      json = json.substring(1, json.length - 1);
       // print(json);
     }
+    // print(json);
     return json;
   }
 
   void runCode() async {
     String code = await getJSON();
+    if (FlutterBluePlus.adapterStateNow != BluetoothAdapterState.on) {
+      _bluetoothWarning(context);
+      return;
+    }
     if (CodeCompiler.isCompiling) {
       CodeCompiler.killCompiler();
       return;
     }
     CodeCompiler.compile(code);
   }
+
+
 
   @override
   void initState() {
