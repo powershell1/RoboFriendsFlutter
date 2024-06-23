@@ -1,4 +1,4 @@
-import 'package:robo_friends/compiler/code_compiler.dart';
+import '../code_compiler.dart';
 
 import 'logic.dart';
 import 'math.dart';

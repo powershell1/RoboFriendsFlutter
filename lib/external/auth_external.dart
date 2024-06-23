@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:robo_friends/pages/inside/home_page.dart';
-import 'package:robo_friends/pages/inside/home_template.dart';
+import 'package:robo_friends/pages/inside/inside_template.dart';
 import 'package:robo_friends/pages/inside/silver_page.dart';
 
 class AuthExternal {

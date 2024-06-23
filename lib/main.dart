@@ -7,6 +7,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:robo_friends/bluetooth/bluetooth.dart';
+import 'package:robo_friends/pages/inside/draft_page.dart';
+import 'package:robo_friends/pages/test_bluetooth/bluetooth_page.dart';
 import 'package:robo_friends/external/auth_external.dart';
 import 'package:robo_friends/external/theme_external.dart';
 import 'package:robo_friends/pages/inside/navigate/code_ide.dart';
@@ -14,7 +16,6 @@ import 'package:robo_friends/pages/inside/navigate/code_ide.dart';
 // import 'package:robo_friends/pages/inside/silver_page.dart';
 import 'package:robo_friends/pages/outside/login_page.dart';
 import 'package:robo_friends/pages/outside/welcome_page.dart';
-import 'package:robo_friends/pages/test_bluetooth/bluetooth_pages.dart';
 import 'package:robo_friends/pages/test_bluetooth/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,6 +55,13 @@ class App extends StatefulWidget {
   State<StatefulWidget> createState() => _AppState();
 }
 
+extension IterableX<T> on Iterable<T> {
+  dynamic safeFirstWhere(bool Function(T) test) {
+    final sublist = where(test);
+    return sublist.isEmpty ? null : sublist.first;
+  }
+}
+
 class _AppState extends State<App> {
   late ThemeMode themeMode = ThemeMode.system;
 
@@ -85,6 +93,7 @@ class _AppState extends State<App> {
     return MaterialApp(
       title: 'Paw Pals',
       themeMode: themeMode,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: const ColorScheme.light().copyWith(
@@ -125,12 +134,24 @@ class _AppState extends State<App> {
           ],
         ),
          */
+        const bool isExperimental = false;
+        if (isExperimental) {
+          return MaterialPageRoute(
+              builder: (context) => const BluetoothDevicesList());
+        }
         bool startWithContext = settings.name!.startsWith('/context');
         if (startWithContext) {
           String context = settings.name!.substring(9);
-          if (context == 'code_ide') {
-            late TextEditingController _controller = TextEditingController(
-              text: Platform.isAndroid ? 'http://172.18.0.81:8080/' : '',
+          List<String> split = context.split('/');
+          if (split[0] == "draft") {
+            return PageRouteBuilder(
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+              pageBuilder: (context, animation1, animation2) => DraftPage(),
+            );
+          } else if (split[0] == 'code_ide') {
+            late TextEditingController controller = TextEditingController(
+              text: 'http://192.168.1.39:8080/',
             );
             return MaterialPageRoute(
               builder: (context) => Scaffold(
@@ -141,7 +162,7 @@ class _AppState extends State<App> {
                       SizedBox(
                         width: 250,
                         child: TextField(
-                          controller: _controller,
+                          controller: controller,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'uri',
@@ -156,7 +177,7 @@ class _AppState extends State<App> {
                               builder: (context) => CodeIDE(
                                 title: 'Connect to IDE',
                                 codeJson: '',
-                                uri: '${_controller.text}?app_ide',
+                                uri: '${controller.text}?app_ide',
                               ),
                             ),
                           );
@@ -168,18 +189,20 @@ class _AppState extends State<App> {
                 ),
               ),
             );
-          } else if (context == 'bluetooth_devices') {
+          } else if (split[0] == 'bluetooth_devices') {
             return MaterialPageRoute(
-              builder: (context) => BluetoothPages(),
+              builder: (context) => const BluetoothDevicesList(),
             );
           }
         }
         if (settings.name == '/login') {
-          return MaterialPageRoute(
-            builder: (context) => const Login(),
+          return PageRouteBuilder(
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) => const Login(),
           );
         }
-        if (settings.name == '/') {
+        if (settings.name == '/' || settings.name == '/context/home') {
           /*
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) {
@@ -192,14 +215,14 @@ class _AppState extends State<App> {
             reverseTransitionDuration: Duration.zero,
           );
            */
-          return MaterialPageRoute(builder: (context) => TestBluetooth());
-          /*
+          // return MaterialPageRoute(builder: (context) => TestBluetooth());
           Widget page = isLogged ? AuthExternal.homepage : const Login();
           page = !widget.welcome ? const WelcomePage(type: 0) : page;
-          return MaterialPageRoute(
-            builder: (context) => page,
+          return PageRouteBuilder(
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) => page,
           );
-           */
         }
         return MaterialPageRoute(
           builder: (context) => Scaffold(

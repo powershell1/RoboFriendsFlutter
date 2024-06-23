@@ -80,7 +80,9 @@ class BluetoothConnection {
             sensorNotify.add(sensorValues);
           });
           device.cancelWhenDisconnected(valueSub, delayed: true, next: true);
-          await characteristic.setNotifyValue(true);
+          if (!device.isDisconnected) {
+            await characteristic.setNotifyValue(true);
+          }
         } else if (characteristic.properties.write) {
           var btc = BluetoothConnection.compilerStream.stream.listen((data) {
             characteristic.write(data);
@@ -131,9 +133,7 @@ class BluetoothConnection {
     }
     FlutterBluePlus.startScan(
       continuousUpdates: true,
-      withNames: [
-        'RoboFriend#ABC1',
-      ],
+      removeIfGone: const Duration(seconds: 3),
     );
     FlutterBluePlus.adapterState.listen((state) async {
       if (state == BluetoothAdapterState.off) {
