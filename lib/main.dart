@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:robo_friends/bluetooth/bluetooth.dart';
+import 'package:robo_friends/pages/inside/assignment_page.dart';
 import 'package:robo_friends/pages/inside/draft_page.dart';
 import 'package:robo_friends/pages/test_bluetooth/bluetooth_page.dart';
 import 'package:robo_friends/external/auth_external.dart';
@@ -149,10 +150,26 @@ class _AppState extends State<App> {
               reverseTransitionDuration: Duration.zero,
               pageBuilder: (context, animation1, animation2) => DraftPage(),
             );
+          } else if (split[0] == 'assignments') {
+            Map<String, dynamic> args = settings.arguments as Map<
+                String,
+                dynamic>;
+            return MaterialPageRoute(
+              builder: (context) =>
+                  AssignmentPage(
+                    title: args['title'],
+                  ),
+            );
+          } else if (split[0] == 'control') {
+            return MaterialPageRoute(
+              builder: (context) => const BluetoothDevicesList(),
+            );
           } else if (split[0] == 'code_ide') {
             late TextEditingController controller = TextEditingController(
               text: 'http://192.168.1.39:8080/',
             );
+            Map<String, dynamic> args =
+            settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (context) => Scaffold(
                 body: Center(
@@ -175,8 +192,8 @@ class _AppState extends State<App> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => CodeIDE(
-                                title: 'Connect to IDE',
-                                codeJson: '',
+                                title: args['title'] ?? 'Code IDE Sample',
+                                codeJson: args['content'],
                                 uri: '${controller.text}?app_ide',
                               ),
                             ),

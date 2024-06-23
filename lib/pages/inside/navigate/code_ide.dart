@@ -11,13 +11,13 @@ import '../../../bluetooth/bluetooth.dart';
 
 class CodeIDE extends StatefulWidget {
   late String title;
-  late String codeJson;
+  late String? codeJson;
   late String uri;
 
   CodeIDE(
       {super.key,
       required this.title,
-      required this.codeJson,
+      this.codeJson,
       required this.uri});
 
   @override
@@ -123,9 +123,12 @@ class _CodeIDEState extends State<CodeIDE> {
             _progress = progress;
           });
           if (_progress != 100) return;
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
-          final String? savedCode = prefs.getString('savedCode');
-          if (savedCode == null) return;
+          String? savedCode = widget.codeJson;
+          if (savedCode == null) {
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            savedCode = prefs.getString('savedCode');
+            if (savedCode == null) return;
+          }
           // print(savedCode);
           _controller.runJavaScript('''window.loadJSON('$savedCode');''');
         },

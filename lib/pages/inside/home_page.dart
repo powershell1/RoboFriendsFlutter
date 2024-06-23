@@ -10,13 +10,42 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => _HomePageState();
 }
 
+/*
+badges.Badge(
+                          badgeStyle: badges.BadgeStyle(
+                            shape: badges.BadgeShape.square,
+                            badgeColor: Colors.blue,
+                            padding: const EdgeInsets.all(5.5),
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xffEFEFEF),
+                              width: 3,
+                            ),
+                            badgeGradient: const badges.BadgeGradient.linear(
+                              colors: [Colors.purple, Colors.blueAccent],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                          ),
+                          badgeContent: Text(
+                            'NEW',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child:
+ */
+
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    List<String> assignment = ["Blink LED"];
+
     return InsideTemplate(
       title: 'Home',
       body: Container(
-        color: Color(0xffEFEFEF),
+        color: const Color(0xffEFEFEF),
         width: MediaQuery.of(context).size.width,
         alignment: Alignment.topLeft,
         child: Padding(
@@ -24,11 +53,79 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              buildColumn("Assignment", badge: "3", children: <Widget>[
+              buildColumn("Assignment",
+                  badge: assignment.length.toString(),
+                  children: <Widget>[
+                    if (assignment.isNotEmpty)
+                      for (String assign in assignment)
+                        buildChild(
+                          width: 200,
+                          height: 100,
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/context/assignments',
+                                arguments: {
+                                  'title': assign,
+                                });
+                          },
+                          child: Center(
+                            child: Text(
+                              assign,
+                              style: GoogleFonts.inter(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    if (assignment.isEmpty)
+                      Container(
+                        width: MediaQuery.of(context).size.width - 64,
+                        height: 125,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 50,
+                              ),
+                              Text(
+                                'You have no assignment due.',
+                                style: GoogleFonts.inter(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    /*
                 buildChild(width: 200, height: 100),
                 buildChild(width: 200, height: 100),
                 buildChild(width: 200, height: 100),
-              ]),
+                buildChild(
+                    width: 100,
+                    height: 100,
+                    onPressed: () {
+                      print('hello');
+                    },
+                    child: Center(
+                      child: Text(
+                        'View All',
+                        style: GoogleFonts.inter(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )),
+                    */
+                  ]),
               buildColumn("Available Lessons", children: <Widget>[
                 buildChild(width: 150, height: 150),
                 buildChild(width: 150, height: 150),
@@ -61,14 +158,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildChild({double width = 100, double height = 100}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: Colors.white,
+  Widget buildChild(
+      {double width = 100,
+      double height = 100,
+      Widget child = const SizedBox(),
+      Function? onPressed}) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
+        child: Material(
+          child: InkWell(
+              onTap: onPressed as void Function()?,
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: child,
+              )),
+        ),
       ),
     );
   }
@@ -92,6 +199,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(left: 10.0),
             child: badge != null
                 ? badges.Badge(
+                    badgeAnimation: const badges.BadgeAnimation.rotation(),
                     badgeContent: Text(
                       badge,
                       style: GoogleFonts.inter(
