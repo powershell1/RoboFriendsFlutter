@@ -40,7 +40,13 @@ badges.Badge(
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    List<String> assignment = ["Blink LED"];
+    List<String> assignment = [
+      'Assignment 1',
+      'Assignment 2',
+      'Assignment 3',
+      'Assignment 4',
+      'Assignment 5',
+    ];
 
     return InsideTemplate(
       title: 'Home',
@@ -50,26 +56,74 @@ class _HomePageState extends State<HomePage> {
         alignment: Alignment.topLeft,
         child: Padding(
           padding: const EdgeInsets.only(left: 32, top: 8, right: 32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              buildColumn("Assignment",
-                  badge: assignment.length.toString(),
-                  children: <Widget>[
-                    if (assignment.isNotEmpty)
-                      for (String assign in assignment)
+          child: SingleChildScrollView(
+            clipBehavior: Clip.none,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                buildColumn("Assignment",
+                    badge: assignment.length.toString(),
+                    children: <Widget>[
+                      if (assignment.isNotEmpty)
+                        for (String assign in assignment)
+                          buildChild(
+                            width: 200,
+                            height: 100,
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                  context, '/context/assignments',
+                                  arguments: {
+                                    'title': assign,
+                                  });
+                            },
+                            child: Center(
+                              child: Text(
+                                assign,
+                                style: GoogleFonts.inter(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      if (assignment.isEmpty) ...[
+                        Container(
+                          width: MediaQuery.of(context).size.width - 64,
+                          height: 125,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 50,
+                                ),
+                                Text(
+                                  'No assignment due.',
+                                  style: GoogleFonts.inter(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ] else
                         buildChild(
-                          width: 200,
+                          width: 100,
                           height: 100,
                           onPressed: () {
-                            Navigator.pushNamed(context, '/context/assignments',
-                                arguments: {
-                                  'title': assign,
-                                });
+                            print('hello');
                           },
                           child: Center(
                             child: Text(
-                              assign,
+                              'View All',
                               style: GoogleFonts.inter(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -77,35 +131,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                    if (assignment.isEmpty)
-                      Container(
-                        width: MediaQuery.of(context).size.width - 64,
-                        height: 125,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 50,
-                              ),
-                              Text(
-                                'You have no assignment due.',
-                                style: GoogleFonts.inter(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    /*
+                      /*
                 buildChild(width: 200, height: 100),
                 buildChild(width: 200, height: 100),
                 buildChild(width: 200, height: 100),
@@ -125,20 +151,26 @@ class _HomePageState extends State<HomePage> {
                       ),
                     )),
                     */
-                  ]),
-              buildColumn("Available Lessons", children: <Widget>[
-                buildChild(width: 150, height: 150),
-                buildChild(width: 150, height: 150),
-              ]),
-            ],
+                    ]),
+                buildColumn("Available Lessons", children: <Widget>[
+                  buildChild(width: 150, height: 150),
+                  buildChild(width: 150, height: 150),
+                ]),
+                const SizedBox(height: kToolbarHeight * 1.5),
+              ],
+            ),
           ),
         ),
       ),
       navigationBar: ENavigationBar.home,
       actions: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(right: kToolbarHeight / 2, top: 5),
-          /*
+        Transform(
+          // you can forcefully translate values left side using Transform
+          transform: Matrix4.translationValues(
+              -kToolbarHeight / 4, kToolbarHeight / 3, 0),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            /*
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
@@ -147,10 +179,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
            */
-          child: ClipOval(
-            child: Image.network(
-              'https://picsum.photos/250?image=9',
-              fit: BoxFit.cover,
+            child: ClipOval(
+              child: Image.network(
+                'https://picsum.photos/250?image=9',
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
@@ -199,6 +232,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(left: 10.0),
             child: badge != null
                 ? badges.Badge(
+                    showBadge: badge != '0',
                     badgeAnimation: const badges.BadgeAnimation.rotation(),
                     badgeContent: Text(
                       badge,

@@ -8,11 +8,13 @@ class NeonButtonWidget extends StatelessWidget {
   final void Function() onPressed;
   final Color gradientStart;
   final Color gradientEnd;
+  final bool neon;
 
   const NeonButtonWidget({
     super.key,
     required this.text,
     required this.onPressed,
+    this.neon = true,
     this.gradientStart = const Color(0xFF597AFB),
     this.gradientEnd = const Color(0xFF831EDE),
   });
@@ -33,18 +35,20 @@ class NeonButtonWidget extends StatelessWidget {
             ],
           ),
           boxShadow: [
-            BoxShadow(
-              color: gradientStart.withOpacity(0.6),
-              spreadRadius: 1.0,
-              blurRadius: 12.0,
-              offset: const Offset(-2, 0),
-            ),
-            BoxShadow(
-              color: gradientEnd.withOpacity(0.6),
-              spreadRadius: 1.0,
-              blurRadius: 12.0,
-              offset: const Offset(2, 0),
-            ),
+            if (neon) ...[
+              BoxShadow(
+                color: gradientStart.withOpacity(0.6),
+                spreadRadius: 1.0,
+                blurRadius: 12.0,
+                offset: const Offset(-2, 0),
+              ),
+              BoxShadow(
+                color: gradientEnd.withOpacity(0.6),
+                spreadRadius: 1.0,
+                blurRadius: 12.0,
+                offset: const Offset(2, 0),
+              ),
+            ]
           ],
         ),
         child: Text(

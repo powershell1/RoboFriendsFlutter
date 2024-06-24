@@ -280,6 +280,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       const SizedBox(
                         height: 16.0,
                       ),
+                      /*
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -306,6 +307,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           ),
                         ],
                       ),
+                       */
                     ],
                   ),
                 ),

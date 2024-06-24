@@ -12,6 +12,104 @@ class DraftPage extends StatefulWidget {
   State<StatefulWidget> createState() => _DraftPageState();
 }
 
+class DraftListsBuilder extends StatelessWidget {
+  final void Function(Draft draft)? onDraft;
+
+  const DraftListsBuilder(this.onDraft, {super.key});
+
+  String dateToString(DateTime date) {
+    if (date.year > 1970) {
+      return '${date.year - 1970} year(s) left';
+    } else if (date.month > 1) {
+      return '${date.month - 1} month(s) left';
+    } else if (date.day > 1) {
+      return '${date.day - 1} day(s) left';
+    } else if (date.hour > 7) {
+      return '${date.hour - 7} hour(s) left';
+    } else if (date.minute > 0) {
+      return '${date.minute} minute(s) left';
+    } else if (date.second > 0) {
+      return '${date.second} second(s) left';
+    }
+    return 'Due date passed';
+  }
+
+  Widget buildChild(Draft draft) {
+    String title = draft.title;
+    DateTime? date = draft.date;
+    DateTime now = DateTime.now();
+    DateTime left = DateTime.fromMillisecondsSinceEpoch(
+        ((date?.millisecondsSinceEpoch ?? 0) - now.millisecondsSinceEpoch) *
+            1000);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Material(
+        child: InkWell(
+          onTap: onDraft != null ? () => onDraft!(draft) : null,
+          child: Container(
+            margin: const EdgeInsets.only(right: 12),
+            width: double.infinity,
+            height: 100,
+            padding: const EdgeInsets.only(left: 24, top: 12, bottom: 12),
+            child: Stack(
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      color: const Color(0xff131313),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (date != null)
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      dateToString(left),
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: const Color(0xff131313).withAlpha(200),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<Draft>>(
+      stream: DraftList.draftList.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return SingleChildScrollView(
+            clipBehavior: Clip.none,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                for (Draft draft in snapshot.data!) ...[
+                  const SizedBox(height: 12),
+                  buildChild(draft),
+                ],
+                const SizedBox(height: kToolbarHeight * 1.5),
+              ],
+            ),
+          );
+        }
+        return Container();
+      },
+    );
+  }
+}
+
 class _DraftPageState extends State<DraftPage> {
   Future openDialog() {
     TextEditingController controller = TextEditingController();
@@ -44,9 +142,13 @@ class _DraftPageState extends State<DraftPage> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                Draft? fidDraft(String title) => DraftList.draftList.stream.valueOrNull!.safeFirstWhere((draft) => draft.title == title);
-                if (controller.text.isNotEmpty && fidDraft(controller.text) == null) {
-                  DraftList.addDraft(Draft(title: controller.text, content: '{}'));
+                Draft? fidDraft(String title) =>
+                    DraftList.draftList.stream.valueOrNull!
+                        .safeFirstWhere((draft) => draft.title == title);
+                if (controller.text.isNotEmpty &&
+                    fidDraft(controller.text) == null) {
+                  DraftList.addDraft(
+                      Draft(title: controller.text, content: '{}'));
                 }
               },
               child: const Text('Add',
@@ -84,31 +186,26 @@ class _DraftPageState extends State<DraftPage> {
         alignment: Alignment.topLeft,
         child: Padding(
           padding: const EdgeInsets.only(left: 32, top: 8, right: 32),
-          child: StreamBuilder<List<Draft>>(
-            stream: DraftList.draftList.stream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      for (Draft draft in snapshot.data!)...[
-                        const SizedBox(height: 12),
-                        buildChild(draft.title, date: draft.date),
-                      ]
-                    ],
-                  ),
-                );
-              }
-              return Container();
+          child: DraftListsBuilder(
+            (Draft draft) {
+              Navigator.pushNamed(
+                context,
+                '/context/code_ide',
+                arguments: {
+                  'title': draft.title,
+                  'content': draft.content,
+                },
+              );
             },
           ),
         ),
       ),
       navigationBar: ENavigationBar.draft,
       actions: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(right: kToolbarHeight / 3, top: 20),
+        Transform(
+          // you can forcefully translate values left side using Transform
+          transform: Matrix4.translationValues(
+              -kToolbarHeight / 4, kToolbarHeight / 2, 0),
           child: IconButton(
               onPressed: openDialog,
               highlightColor: Colors.transparent,
@@ -120,74 +217,6 @@ class _DraftPageState extends State<DraftPage> {
               )),
         ),
       ],
-    );
-  }
-
-  String dateToString(DateTime date) {
-    if (date.year > 1970) {
-      return '${date.year-1970} year(s) left';
-    } else if (date.month > 1) {
-      return '${date.month-1} month(s) left';
-    } else if (date.day > 1) {
-      return '${date.day-1} day(s) left';
-    } else if (date.hour > 7) {
-      return '${date.hour-7} hour(s) left';
-    } else if (date.minute > 0) {
-      return '${date.minute} minute(s) left';
-    } else if (date.second > 0) {
-      return '${date.second} second(s) left';
-    }
-    return 'Due date passed';
-  }
-
-  Widget buildChild(String title, {DateTime? date}) {
-    DateTime now = DateTime.now();
-    DateTime left = DateTime.fromMillisecondsSinceEpoch(((date?.millisecondsSinceEpoch ?? 0) - now.millisecondsSinceEpoch) * 1000);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Material(
-        child: InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, '/context/code_ide', arguments: {
-              'title': title,
-              'content': DraftList.draftList.stream.valueOrNull!.safeFirstWhere((draft) => draft.title == title)!.content,
-            });
-          },
-          child: Container(
-            margin: const EdgeInsets.only(right: 12),
-            width: double.infinity,
-            height: 100,
-            padding: const EdgeInsets.only(left: 24, top: 12, bottom: 12),
-            child: Stack(
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 22,
-                      color: const Color(0xff131313),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (date != null)
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text(
-                      dateToString(left),
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: const Color(0xff131313).withAlpha(200),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
