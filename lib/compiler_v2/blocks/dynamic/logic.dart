@@ -8,18 +8,13 @@ class ControlIf extends BlockFunctions {
   @override
   void runCode() async {
     // print(BlocksBlueprint.storedVariable);
-    if (node.containsKey('inputs')) {
-      Map<String, dynamic> blocks = fieldsDecoder(node['inputs']['MOTOR']);
-      int servo = int.parse(node['fields']['SERVO']);
-      BlockFunctions? blockType = await CodeCompiler.initBlock(blocks);
-      if (blockType == null) return;
-      dynamic returnVar = await blockType.runCode();
-      if (returnVar is num) {
-        BluetoothConnection.compilerStream.sink.add([servo, returnVar.toInt()%180]);
-        // log('Rotating servo by $returnVar degrees');
-      } else {
-        Logger().w('Invalid input for servo rotation ($returnVar)');
-      }
+    Map<String, dynamic>? inputs = node['inputs'];
+    if (inputs != null && inputs.isNotEmpty) {
+      Map<String, dynamic>? extraState = node['extraState'];
+      bool hasElse = extraState?.containsKey('hasElse') ?? false;
+      int elseIfCount = extraState?['elseIfCount'] ?? 0;
+
+      print(node);
     }
     await super.runCode();
   }

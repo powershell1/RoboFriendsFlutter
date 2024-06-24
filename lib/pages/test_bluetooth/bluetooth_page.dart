@@ -169,6 +169,7 @@ class _BluetoothDevicesList extends State<BluetoothDevicesList> with SingleTicke
                   .where((element) => !devices.contains(element))
                   .toList();
               devices.addAll(deviceConnected);
+              /*
               devices.add(
                 EmulatedDevices(
                   'RoboFriend#1',
@@ -187,6 +188,7 @@ class _BluetoothDevicesList extends State<BluetoothDevicesList> with SingleTicke
                   remoteId: const DeviceIdentifier('emu3'),
                 ),
               );
+               */
               return Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: ListView.builder(

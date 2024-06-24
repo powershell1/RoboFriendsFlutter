@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -82,6 +83,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     isLogged = true;
     var brightness =
         SchedulerBinding.instance.platformDispatcher.platformBrightness;
@@ -151,14 +153,29 @@ class _AppState extends State<App> {
               pageBuilder: (context, animation1, animation2) => DraftPage(),
             );
           } else if (split[0] == 'assignments') {
-            Map<String, dynamic> args = settings.arguments as Map<
-                String,
-                dynamic>;
-            return MaterialPageRoute(
-              builder: (context) =>
+            Map<String, dynamic> args =
+                settings.arguments as Map<String, dynamic>;
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
                   AssignmentPage(
-                    title: args['title'],
-                  ),
+                title: args['title'],
+              ),
+              transitionDuration: const Duration(milliseconds: 150),
+              reverseTransitionDuration: const Duration(milliseconds: 150),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var curve = Curves.easeInOutSine;
+                var tween = Tween(begin: begin, end: end).chain(
+                  CurveTween(curve: curve),
+                );
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
             );
           } else if (split[0] == 'control') {
             return MaterialPageRoute(
@@ -166,10 +183,10 @@ class _AppState extends State<App> {
             );
           } else if (split[0] == 'code_ide') {
             late TextEditingController controller = TextEditingController(
-              text: 'http://192.168.1.39:8080/',
+              text: 'https://powershell1.github.io/RoboWebpack/'// 'http://192.168.1.39:8080/',
             );
             Map<String, dynamic> args =
-            settings.arguments as Map<String, dynamic>;
+                settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (context) => Scaffold(
                 body: Center(

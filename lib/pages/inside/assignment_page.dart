@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../external/draft_sys.dart';
+import '../outside/widget/neon_button.dart';
+import 'draft_page.dart';
+
 class AssignmentPage extends StatefulWidget {
   final String? title;
 
@@ -11,6 +15,37 @@ class AssignmentPage extends StatefulWidget {
 }
 
 class _AssignmentPageState extends State<AssignmentPage> {
+  Draft? draftCache;
+
+  void attachDraft() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          clipBehavior: Clip.hardEdge,
+          width: MediaQuery.of(context).size.width,
+          alignment: Alignment.topLeft,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            color: Color(0xffEFEFEF),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 32, top: 8, right: 32),
+            child: DraftListsBuilder((Draft draft) {
+              setState(() {
+                draftCache = draftCache == draft ? null : draft;
+              });
+              Navigator.pop(context);
+            }),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,15 +61,69 @@ class _AssignmentPageState extends State<AssignmentPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            buildHeader('Due', 'within 2 days'),
-            const SizedBox(height: 4),
-            buildHeader('Instruction', 'make ROBOFriend blink for 3 times.',
-                color: const Color(0xff967650)),
-            const SizedBox(height: 8),
-            const Text('Attach'),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                buildHeader('Due', 'within 2 days'),
+                const SizedBox(height: 4),
+                buildHeader('Instruction', 'make ROBOFriend blink for 3 times.',
+                    color: const Color(0xff967650)),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Material(
+                    color: Colors.grey[100],
+                    child: InkWell(
+                      onTap: attachDraft,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Wrap(
+                          children: [
+                            const Icon(Icons.attach_file),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Attach Draft',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ColorFiltered(
+                  colorFilter: draftCache == null
+                      ? const ColorFilter.mode(
+                          Colors.grey,
+                          BlendMode.saturation,
+                        )
+                      : const ColorFilter.mode(
+                          Colors.transparent,
+                          BlendMode.multiply,
+                        ),
+                  child: NeonButtonWidget(
+                    text: "Submit Assignment",
+                    neon: false,
+                    onPressed: () {
+                      if (draftCache == null) return;
+                      print("Submit");
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -64,7 +153,6 @@ class _AssignmentPageState extends State<AssignmentPage> {
         Flexible(
           child: Text(
             child,
-            overflow: TextOverflow.fade,
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w500,

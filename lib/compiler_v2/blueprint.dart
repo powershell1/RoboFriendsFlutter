@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:robo_friends/compiler_v2/blocks/dynamic/logic.dart';
+
 import 'blocks/dynamic/math.dart';
 
 import 'blocks/dynamic/variables.dart';
 import 'blocks/events/events.dart';
-import 'blocks/events/procedures_noreturn.dart';
+import 'blocks/events/procedures.dart';
 import 'blocks/sensors.dart';
 import 'compiler.dart';
 
@@ -31,6 +33,8 @@ class BlocksBlueprint {
         return ProceduresDefNoReturn();
       case 'procedures_callnoreturn':
         return ProceduresCallNoReturn();
+      case 'controls_if':
+        return ControlIf();
       case 'variables_get':
         return VariablesGet();
       case 'variables_set':
