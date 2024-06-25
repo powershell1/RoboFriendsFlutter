@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:robo_friends/external/auth_external.dart';
-import 'package:robo_friends/pages/outside/widget/neon_button.dart';
+import 'package:robo_friends/classes/auth_external.dart';
+import 'package:robo_friends/classes/neonButton.dart';
 
 import '../../main.dart';
 

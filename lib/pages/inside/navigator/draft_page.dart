@@ -2,81 +2,88 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:robo_friends/external/draft_sys.dart';
+import 'package:robo_friends/classes/draftClass.dart';
 import 'package:robo_friends/main.dart';
-import 'package:robo_friends/pages/inside/inside_template.dart';
+import 'package:robo_friends/pages/inside/scaffoldTemplate.dart';
 import 'package:badges/badges.dart' as badges;
 
+import '../../../classes/assignmentClass.dart';
+import '../../../classes/timeString.dart';
+
 class DraftPage extends StatefulWidget {
+  const DraftPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _DraftPageState();
 }
 
 class DraftListsBuilder extends StatelessWidget {
   final void Function(Draft draft)? onDraft;
+  final Assignment? linkedAssignment;
 
-  const DraftListsBuilder(this.onDraft, {super.key});
-
-  String dateToString(DateTime date) {
-    if (date.year > 1970) {
-      return '${date.year - 1970} year(s) left';
-    } else if (date.month > 1) {
-      return '${date.month - 1} month(s) left';
-    } else if (date.day > 1) {
-      return '${date.day - 1} day(s) left';
-    } else if (date.hour > 7) {
-      return '${date.hour - 7} hour(s) left';
-    } else if (date.minute > 0) {
-      return '${date.minute} minute(s) left';
-    } else if (date.second > 0) {
-      return '${date.second} second(s) left';
-    }
-    return 'Due date passed';
-  }
+  const DraftListsBuilder(this.onDraft, {super.key, this.linkedAssignment});
 
   Widget buildChild(Draft draft) {
     String title = draft.title;
-    DateTime? date = draft.date;
-    DateTime now = DateTime.now();
-    DateTime left = DateTime.fromMillisecondsSinceEpoch(
-        ((date?.millisecondsSinceEpoch ?? 0) - now.millisecondsSinceEpoch) *
-            1000);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Material(
-        child: InkWell(
-          onTap: onDraft != null ? () => onDraft!(draft) : null,
-          child: Container(
-            margin: const EdgeInsets.only(right: 12),
-            width: double.infinity,
-            height: 100,
-            padding: const EdgeInsets.only(left: 24, top: 12, bottom: 12),
-            child: Stack(
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 22,
-                      color: const Color(0xff131313),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (date != null)
+    Assignment? assignment = draft.assignment;
+    return badges.Badge(
+      showBadge: assignment == linkedAssignment && assignment != null,
+      badgeAnimation: const badges.BadgeAnimation.slide(toAnimate: false),
+      badgeContent: const Padding(
+        padding: EdgeInsets.all(4),
+        child: Icon(
+          Icons.assignment,
+          color: Colors.white,
+          size: 15,
+        ),
+      ),
+      badgeStyle: badges.BadgeStyle(
+        shape: badges.BadgeShape.instagram,
+        badgeColor: Colors.orange,
+        padding: const EdgeInsets.all(5.5),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: Color(0xffEFEFEF),
+          width: 3,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Material(
+          child: InkWell(
+            onTap: onDraft != null ? () => onDraft!(draft) : null,
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              width: double.infinity,
+              height: 100,
+              padding: const EdgeInsets.only(left: 24, top: 12, bottom: 12),
+              child: Stack(
+                children: <Widget>[
                   Align(
-                    alignment: Alignment.bottomLeft,
+                    alignment: Alignment.topLeft,
                     child: Text(
-                      dateToString(left),
+                      title,
                       style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: const Color(0xff131313).withAlpha(200),
+                        fontSize: 22,
+                        color: const Color(0xff131313),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-              ],
+                  if (assignment != null)
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        '${dateToString(assignment.due)} left',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: const Color(0xff131313).withAlpha(200),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -104,7 +111,7 @@ class DraftListsBuilder extends StatelessWidget {
             ),
           );
         }
-        return Container();
+        return const SizedBox();
       },
     );
   }
@@ -123,10 +130,12 @@ class _DraftPageState extends State<DraftPage> {
           ),
           title: Text(
             'New Draft',
+            /*
             style: GoogleFonts.inter(
               color: const Color(0xff131313),
               fontWeight: FontWeight.bold,
             ),
+             */
           ),
           contentPadding: const EdgeInsets.only(left: 24, right: 24),
           content: TextField(
@@ -151,9 +160,9 @@ class _DraftPageState extends State<DraftPage> {
                       Draft(title: controller.text, content: '{}'));
                 }
               },
-              child: const Text('Add',
-                  style: TextStyle(
-                      color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+              child: const Text('Add'),
+                  // style: TextStyle(
+                  //     color: Colors.blueAccent, fontWeight: FontWeight.bold)),
             ),
             TextButton(
               style: ButtonStyle(
@@ -164,10 +173,12 @@ class _DraftPageState extends State<DraftPage> {
               },
               child: Text(
                 'Cancel',
+                /*
                 style: GoogleFonts.inter(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),
+                 */
               ),
             ),
           ],
@@ -202,14 +213,11 @@ class _DraftPageState extends State<DraftPage> {
       ),
       navigationBar: ENavigationBar.draft,
       actions: <Widget>[
-        Transform(
-          // you can forcefully translate values left side using Transform
-          transform: Matrix4.translationValues(
-              -kToolbarHeight / 4, kToolbarHeight / 2, 0),
+        Container(
+          alignment: Alignment.bottomCenter,
+          margin: const EdgeInsets.only(right: kToolbarHeight / 1.75),
           child: IconButton(
               onPressed: openDialog,
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
               icon: const Icon(
                 size: 30,
                 Icons.add,

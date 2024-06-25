@@ -1,12 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:robo_friends/external/animated_widget.dart';
+import 'package:robo_friends/classes/animated_widget.dart';
 import 'package:robo_friends/main.dart';
-import 'package:robo_friends/pages/outside/widget/neon_button.dart';
+import 'package:robo_friends/classes/neonButton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'login_page.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key, required this.type});

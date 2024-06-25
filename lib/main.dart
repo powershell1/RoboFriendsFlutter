@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:robo_friends/bluetooth/bluetooth.dart';
-import 'package:robo_friends/pages/inside/assignment_page.dart';
-import 'package:robo_friends/pages/inside/draft_page.dart';
+import 'package:robo_friends/classes/assignmentClass.dart';
+import 'package:robo_friends/classes/auth_external.dart';
+import 'package:robo_friends/classes/theme_external.dart';
+import 'package:robo_friends/pages/inside/navigate/assignment_page.dart';
+import 'package:robo_friends/pages/inside/navigator/control_page.dart';
+import 'package:robo_friends/pages/inside/navigator/draft_page.dart';
 import 'package:robo_friends/pages/test_bluetooth/bluetooth_page.dart';
-import 'package:robo_friends/external/auth_external.dart';
-import 'package:robo_friends/external/theme_external.dart';
 import 'package:robo_friends/pages/inside/navigate/code_ide.dart';
 
 // import 'package:robo_friends/pages/inside/silver_page.dart';
@@ -153,12 +154,11 @@ class _AppState extends State<App> {
               pageBuilder: (context, animation1, animation2) => DraftPage(),
             );
           } else if (split[0] == 'assignments') {
-            Map<String, dynamic> args =
-                settings.arguments as Map<String, dynamic>;
+            Assignment args = settings.arguments as Assignment;
             return PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   AssignmentPage(
-                title: args['title'],
+                assignment: args,
               ),
               transitionDuration: const Duration(milliseconds: 150),
               reverseTransitionDuration: const Duration(milliseconds: 150),
@@ -178,15 +178,21 @@ class _AppState extends State<App> {
               },
             );
           } else if (split[0] == 'control') {
+            return PageRouteBuilder(
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+                pageBuilder: (context, animation1, animation2) =>
+                    const ControlPage());
             return MaterialPageRoute(
               builder: (context) => const BluetoothDevicesList(),
             );
           } else if (split[0] == 'code_ide') {
+            Map<String, dynamic> args =
+                settings.arguments as Map<String, dynamic>;
+            /*
             late TextEditingController controller = TextEditingController(
               text: 'https://powershell1.github.io/RoboWebpack/'// 'http://192.168.1.39:8080/',
             );
-            Map<String, dynamic> args =
-                settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (context) => Scaffold(
                 body: Center(
@@ -221,6 +227,15 @@ class _AppState extends State<App> {
                     ],
                   ),
                 ),
+              ),
+            );
+
+             */
+            return MaterialPageRoute(
+              builder: (context) => CodeIDE(
+                title: args['title'] ?? 'Code IDE Sample',
+                codeJson: args['content'],
+                uri: 'https://powershell1.github.io/RoboWebpack/',
               ),
             );
           } else if (split[0] == 'bluetooth_devices') {

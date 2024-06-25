@@ -7,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../bluetooth/bluetooth.dart';
-import '../inside/inside_template.dart';
+import '../inside/scaffoldTemplate.dart';
 
 class BluetoothDevicesList extends StatefulWidget {
   const BluetoothDevicesList({Key? key}) : super(key: key);

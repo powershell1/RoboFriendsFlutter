@@ -46,10 +46,23 @@ class InsideTemplate extends StatelessWidget {
     double lowestFrame = width < height ? width : height;
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight * 2),
+        preferredSize: const Size.fromHeight(kToolbarHeight * 1.4),
         // here the desired height
         child: AppBar(
-          toolbarHeight: kToolbarHeight * 2,
+          leading: ModalRoute.of(context)!.isFirst ? null : Align(
+            alignment: Alignment.bottomRight,
+            child: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: kToolbarHeight/2,
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          toolbarHeight: kToolbarHeight * 1.4,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -66,16 +79,18 @@ class InsideTemplate extends StatelessWidget {
             color: Colors.white,
           ),
           centerTitle: false,
-          title: Transform(
+          title: Align(
+            alignment: const Alignment(-0.8, 0.7),
+            heightFactor: 1.5,
             // you can forcefully translate values left side using Transform
-            transform: Matrix4.translationValues(
-                kToolbarHeight / 4, kToolbarHeight / 2, 0),
+            // transform: Matrix4.translationValues(
+            //    kToolbarHeight / 4, kToolbarHeight / 2, 0),
             child: Text(
               title,
               style: GoogleFonts.inter(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
-                fontSize: kToolbarHeight / 1.75,
+                fontSize: kToolbarHeight / 1.5,
               ),
             ),
           ),
@@ -96,75 +111,68 @@ class InsideTemplate extends StatelessWidget {
         children: <Widget>[
           body,
           if (navigationBar != null)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                child: Container(
-                  height: kToolbarHeight,
-                  width: lowestFrame,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Color(0xFF4CCD99),
-                    /*
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF4CCD99),
-                        Color(0xFF007F73),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+            SafeArea(
+              bottom: false,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    height: kToolbarHeight,
+                    width: lowestFrame,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: Color(0xFF4CCD99),
                     ),
-
-                     */
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      const SizedBox(width: 25),
-                      IconButton(
-                        icon: CustomIcon(
-                            icon: Icons.home,
-                            unIcon: Icons.home_outlined,
-                            active: navigationBar == ENavigationBar.home),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(
-                              context, "/context/home");
-                        },
-                      ),
-                      IconButton(
-                        icon: CustomIcon(
-                            icon: Icons.drafts,
-                            unIcon: Icons.drafts_outlined,
-                            active: navigationBar == ENavigationBar.draft),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(
-                              context, "/context/draft");
-                        },
-                      ),
-                      IconButton(
-                        icon: CustomIcon(
-                            icon: Icons.control_camera,
-                            unIcon: Icons.control_camera_outlined,
-                            active: navigationBar == ENavigationBar.control),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(
-                              context, "/context/control");
-                        },
-                      ),
-                      IconButton(
-                        icon: CustomIcon(
-                            icon: Icons.assignment,
-                            unIcon: Icons.assessment_outlined,
-                            active: navigationBar == ENavigationBar.test),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(
-                              context, "/context/test");
-                        },
-                      ),
-                      const SizedBox(width: 25),
-                    ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        const SizedBox(width: 25),
+                        IconButton(
+                          icon: CustomIcon(
+                              icon: Icons.home,
+                              unIcon: Icons.home_outlined,
+                              active: navigationBar == ENavigationBar.home),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                                context, "/context/home");
+                          },
+                        ),
+                        IconButton(
+                          icon: CustomIcon(
+                              icon: Icons.drafts,
+                              unIcon: Icons.drafts_outlined,
+                              active: navigationBar == ENavigationBar.draft),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                                context, "/context/draft");
+                          },
+                        ),
+                        IconButton(
+                          icon: CustomIcon(
+                              icon: Icons.control_camera,
+                              unIcon: Icons.control_camera_outlined,
+                              active: navigationBar == ENavigationBar.control),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                                context, "/context/control");
+                          },
+                        ),
+                        IconButton(
+                          icon: CustomIcon(
+                              icon: Icons.assignment,
+                              unIcon: Icons.assessment_outlined,
+                              active: navigationBar == ENavigationBar.test),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                                context, "/context/test");
+                          },
+                        ),
+                        const SizedBox(width: 25),
+                      ],
+                    ),
                   ),
                 ),
               ),

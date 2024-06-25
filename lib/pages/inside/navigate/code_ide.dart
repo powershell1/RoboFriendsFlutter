@@ -30,6 +30,7 @@ class _CodeIDEState extends State<CodeIDE> {
   late WebViewController _controller;
 
   late int _progress = 0;
+  bool _disposed = false;
 
   late ESaveBtnState saveBtnState = ESaveBtnState.Saved;
 
@@ -119,6 +120,7 @@ class _CodeIDEState extends State<CodeIDE> {
     _controller.setNavigationDelegate(
       NavigationDelegate(
         onProgress: (int progress) async {
+          if (_disposed) return;
           setState(() {
             _progress = progress;
           });
@@ -166,6 +168,12 @@ class _CodeIDEState extends State<CodeIDE> {
       return;
     }
     _controller.reload();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 
   @override
