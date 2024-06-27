@@ -151,23 +151,29 @@ class _HomePageState extends State<HomePage> {
       ),
       navigationBar: ENavigationBar.home,
       actions: <Widget>[
-        Container(
-          width: kToolbarHeight,
-          height: kToolbarHeight,
-          margin: const EdgeInsets.only(right: kToolbarHeight / 1.75),
-          /*
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xffA0A0A0),
-              width: 2,
-            ),
-          ),
-           */
-          child: ClipOval(
-            child: Image.network(
-              'https://picsum.photos/250?image=9',
-              fit: BoxFit.cover,
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/context/profile'),
+            child: Container(
+              width: kToolbarHeight-4,
+              height: kToolbarHeight-4,
+              margin: const EdgeInsets.only(right: kToolbarHeight / 1.75),
+              /*
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xffA0A0A0),
+                  width: 2,
+                ),
+              ),
+               */
+              child: ClipOval(
+                child: Image.network(
+                  'https://picsum.photos/250?image=9',
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
         ),
@@ -180,16 +186,28 @@ class _HomePageState extends State<HomePage> {
       double height = 100,
       Widget child = const SizedBox(),
       Function? onPressed}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Material(
-        child: InkWell(
-            onTap: onPressed as void Function()?,
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: child,
-            )),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Material(
+          child: InkWell(
+              onTap: onPressed as void Function()?,
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: child,
+              )),
+        ),
       ),
     );
   }

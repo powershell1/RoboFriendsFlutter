@@ -11,6 +11,7 @@ import 'package:robo_friends/classes/assignmentClass.dart';
 import 'package:robo_friends/classes/auth_external.dart';
 import 'package:robo_friends/classes/theme_external.dart';
 import 'package:robo_friends/pages/inside/navigate/assignment_page.dart';
+import 'package:robo_friends/pages/inside/navigate/profile_page.dart';
 import 'package:robo_friends/pages/inside/navigator/control_page.dart';
 import 'package:robo_friends/pages/inside/navigator/draft_page.dart';
 import 'package:robo_friends/pages/test_bluetooth/bluetooth_page.dart';
@@ -138,11 +139,6 @@ class _AppState extends State<App> {
           ],
         ),
          */
-        const bool isExperimental = false;
-        if (isExperimental) {
-          return MaterialPageRoute(
-              builder: (context) => const BluetoothDevicesList());
-        }
         bool startWithContext = settings.name!.startsWith('/context');
         if (startWithContext) {
           String context = settings.name!.substring(9);
@@ -153,13 +149,34 @@ class _AppState extends State<App> {
               reverseTransitionDuration: Duration.zero,
               pageBuilder: (context, animation1, animation2) => DraftPage(),
             );
+          } else if (split[0] == 'profile') {
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  ProfilePage(),
+              transitionDuration: const Duration(milliseconds: 150),
+              reverseTransitionDuration: const Duration(milliseconds: 150),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var curve = Curves.easeInOutSine;
+                var tween = Tween(begin: begin, end: end).chain(
+                  CurveTween(curve: curve),
+                );
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+            );
           } else if (split[0] == 'assignments') {
             Assignment args = settings.arguments as Assignment;
             return PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   AssignmentPage(
-                assignment: args,
-              ),
+                    assignment: args,
+                  ),
               transitionDuration: const Duration(milliseconds: 150),
               reverseTransitionDuration: const Duration(milliseconds: 150),
               transitionsBuilder:
@@ -239,8 +256,25 @@ class _AppState extends State<App> {
               ),
             );
           } else if (split[0] == 'bluetooth_devices') {
-            return MaterialPageRoute(
-              builder: (context) => const BluetoothDevicesList(),
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const BluetoothDevicesList(),
+              transitionDuration: const Duration(milliseconds: 150),
+              reverseTransitionDuration: const Duration(milliseconds: 150),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var curve = Curves.easeInOutSine;
+                var tween = Tween(begin: begin, end: end).chain(
+                  CurveTween(curve: curve),
+                );
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
             );
           }
         }

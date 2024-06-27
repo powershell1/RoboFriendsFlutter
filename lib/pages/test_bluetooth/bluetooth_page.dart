@@ -92,7 +92,7 @@ class _BluetoothDevicesList extends State<BluetoothDevicesList> with SingleTicke
         child: Material(
           child: InkWell(
             highlightColor: Colors.white,
-            onTap: () {},
+            onTap: onTap,
             child: Container(
               height: 100,
               color: const Color(0xff272727),

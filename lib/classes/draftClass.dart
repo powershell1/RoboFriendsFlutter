@@ -3,7 +3,8 @@ import 'package:rxdart/rxdart.dart';
 
 class DraftList {
   static final BehaviorSubject<List<Draft>> draftList = BehaviorSubject.seeded([
-    Draft(title: 'Untitled 1', content: '{}', assignment: AssignmentList.assignList.stream.valueOrNull![0]),
+    Draft(title: 'Untitled 1', content: '{}'),
+    Draft(title: 'Untitled 2', content: '{}', assignment: AssignmentList.assignList.stream.valueOrNull![0]),
   ]);
 
   static void addDraft(Draft draft) {

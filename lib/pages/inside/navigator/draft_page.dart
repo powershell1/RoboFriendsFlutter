@@ -97,12 +97,14 @@ class DraftListsBuilder extends StatelessWidget {
       stream: DraftList.draftList.stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          List<Draft> sorted = snapshot.data!;
+          sorted.sort((a, b) => a.assignment == linkedAssignment ? 0 : 1);
           return SingleChildScrollView(
             clipBehavior: Clip.none,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                for (Draft draft in snapshot.data!) ...[
+                for (Draft draft in sorted) ...[
                   const SizedBox(height: 12),
                   buildChild(draft),
                 ],
