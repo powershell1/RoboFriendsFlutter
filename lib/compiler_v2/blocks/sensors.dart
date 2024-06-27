@@ -36,7 +36,7 @@ class SetMotor extends BlockFunctions {
       if (blockType == null) return;
       dynamic returnVar = await blockType.runCode();
       if (returnVar is num) {
-        BluetoothConnection.compilerStream.sink.add([motor, returnVar.toInt()]);
+        BluetoothConnection.compilerStream.sink.add([motor, returnVar.toInt()+127]);
         // log('Rotating servo by $returnVar degrees');
       } else {
         Logger().w('Invalid input for servo rotation ($returnVar)');

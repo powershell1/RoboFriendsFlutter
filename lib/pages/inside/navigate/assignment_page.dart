@@ -52,6 +52,15 @@ class _AssignmentPageState extends State<AssignmentPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 28,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           overflow: TextOverflow.fade,
           widget.assignment.title ?? 'Assignment Page',

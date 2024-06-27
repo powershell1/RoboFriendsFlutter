@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:robo_friends/classes/profileClass.dart';
 import 'package:robo_friends/pages/inside/scaffoldTemplate.dart';
 import 'package:robo_friends/pages/inside/navigator/home_page.dart';
 import 'package:robo_friends/pages/inside/silver_page.dart';
 
 class AuthExternal {
+  static Profile? profile;
   static final Widget homepage = HomePage();
 
   static Future<bool> login(String username, String password, BuildContext context) {
@@ -11,6 +13,7 @@ class AuthExternal {
       _redirectHomePage(context);
       return Future.value(true);
     }
+
     return Future.value(false);
   }
 
