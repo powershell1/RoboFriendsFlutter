@@ -8,6 +8,8 @@ import 'package:robo_friends/pages/inside/scaffoldTemplate.dart';
 import 'package:badges/badges.dart' as badges;
 
 import '../../../classes/assignmentClass.dart';
+import '../../../classes/authentication.dart';
+import '../../../classes/profileClass.dart';
 import '../../../classes/timeString.dart';
 
 class DraftPage extends StatefulWidget {
@@ -93,11 +95,11 @@ class DraftListsBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Draft>>(
-      stream: DraftList.draftList.stream,
+    return StreamBuilder<Profile?>(
+      stream: AuthExternal.profileStream.stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<Draft> sorted = snapshot.data!;
+          List<Draft> sorted = snapshot.data!.drafts;
           sorted.sort((a, b) => a.assignment == linkedAssignment ? 0 : 1);
           return SingleChildScrollView(
             clipBehavior: Clip.none,
@@ -154,7 +156,7 @@ class _DraftPageState extends State<DraftPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 Draft? fidDraft(String title) =>
-                    DraftList.draftList.stream.valueOrNull!
+                    AuthExternal.profileStream.stream.valueOrNull!.drafts
                         .safeFirstWhere((draft) => draft.title == title);
                 if (controller.text.isNotEmpty &&
                     fidDraft(controller.text) == null) {

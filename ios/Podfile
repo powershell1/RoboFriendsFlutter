@@ -33,9 +33,9 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  #This line. The tag depends on what Firebase SDK you have installed.
-  #pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '9.5.0'
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  # Add this line
+  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '10.27.0'
   target 'RunnerTests' do
     inherit! :search_paths
   end

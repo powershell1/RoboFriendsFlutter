@@ -36,10 +36,7 @@ import 'firebase_options.dart';
 
 late final FirebaseApp app;
 late final FirebaseAuth auth;
-late final FirebaseFirestore firestore;
 late final FirebaseStorage storage;
-
-late final usersRef;
 
 // late final
 
@@ -53,12 +50,17 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   auth = FirebaseAuth.instanceFor(app: app);
-  firestore = FirebaseFirestore.instanceFor(app: app);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
   storage = FirebaseStorage.instanceFor(app: app);
   if (shouldUseFirebaseEmulator) {
-    firestore.useFirestoreEmulator('localhost', 8080);
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
     await storage.useStorageEmulator('localhost', 9199);
     await auth.useAuthEmulator('localhost', 9099);
+  }
+  if (auth.currentUser != null) {
+    await AuthExternal.initUser(auth.currentUser!);
   }
   // const isWelcomed = true;
   print('Welcome: $isWelcomed');
@@ -98,8 +100,6 @@ extension IterableX<T> on Iterable<T> {
 class _AppState extends State<App> {
   late ThemeMode themeMode = ThemeMode.system;
 
-  bool isLogged = false;
-
   Future<void> reloadSVGs(List<String> path) async {
     for (String p in path) {
       final loader = SvgAssetLoader(p);
@@ -130,25 +130,8 @@ class _AppState extends State<App> {
     BluetoothConnection.startScans();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Paw Pals',
-      themeMode: themeMode,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: const ColorScheme.light().copyWith(
-          onPrimary: Colors.black,
-          primaryContainer: Colors.black54,
-          onSecondary: Colors.black,
-          secondaryContainer: Colors.black26,
-          error: const Color(0xffcf6679),
-          onError: Colors.black,
-        ),
-      ),
-      onGenerateRoute: (settings) {
-        /*
+  Route<dynamic>? generateRoute(RouteSettings settings) {
+    /*
         home: Stack(
           children: <Widget>[
             if (!widget.welcome)
@@ -162,74 +145,71 @@ class _AppState extends State<App> {
           ],
         ),
          */
-        bool startWithContext = settings.name!.startsWith('/context');
-        if (startWithContext) {
-          String context = settings.name!.substring(9);
-          List<String> split = context.split('/');
-          if (split[0] == "draft") {
-            return PageRouteBuilder(
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-              pageBuilder: (context, animation1, animation2) => DraftPage(),
+    bool startWithContext = settings.name!.startsWith('/context');
+    if (startWithContext) {
+      String context = settings.name!.substring(9);
+      List<String> split = context.split('/');
+      if (split[0] == "draft") {
+        return PageRouteBuilder(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, animation1, animation2) => DraftPage(),
+        );
+      } else if (split[0] == 'profile') {
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              ProfilePage(),
+          transitionDuration: const Duration(milliseconds: 150),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var begin = const Offset(1.0, 0.0);
+            var end = Offset.zero;
+            var curve = Curves.easeInOutSine;
+            var tween = Tween(begin: begin, end: end).chain(
+              CurveTween(curve: curve),
             );
-          } else if (split[0] == 'profile') {
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  ProfilePage(),
-              transitionDuration: const Duration(milliseconds: 150),
-              reverseTransitionDuration: const Duration(milliseconds: 150),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                var begin = const Offset(1.0, 0.0);
-                var end = Offset.zero;
-                var curve = Curves.easeInOutSine;
-                var tween = Tween(begin: begin, end: end).chain(
-                  CurveTween(curve: curve),
-                );
-                var offsetAnimation = animation.drive(tween);
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
+            var offsetAnimation = animation.drive(tween);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
             );
-          } else if (split[0] == 'assignments') {
-            Assignment args = settings.arguments as Assignment;
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  AssignmentPage(
-                assignment: args,
-              ),
-              transitionDuration: const Duration(milliseconds: 150),
-              reverseTransitionDuration: const Duration(milliseconds: 150),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                var begin = const Offset(1.0, 0.0);
-                var end = Offset.zero;
-                var curve = Curves.easeInOutSine;
-                var tween = Tween(begin: begin, end: end).chain(
-                  CurveTween(curve: curve),
-                );
-                var offsetAnimation = animation.drive(tween);
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
+          },
+        );
+      } else if (split[0] == 'assignments') {
+        Assignment args = settings.arguments as Assignment;
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              AssignmentPage(
+            assignment: args,
+          ),
+          transitionDuration: const Duration(milliseconds: 150),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var begin = const Offset(1.0, 0.0);
+            var end = Offset.zero;
+            var curve = Curves.easeInOutSine;
+            var tween = Tween(begin: begin, end: end).chain(
+              CurveTween(curve: curve),
             );
-          } else if (split[0] == 'control') {
-            return PageRouteBuilder(
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-                pageBuilder: (context, animation1, animation2) =>
-                    const ControlPage());
-            return MaterialPageRoute(
-              builder: (context) => const BluetoothDevicesList(),
+            var offsetAnimation = animation.drive(tween);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
             );
-          } else if (split[0] == 'code_ide') {
-            Map<String, dynamic> args =
-                settings.arguments as Map<String, dynamic>;
-            /*
+          },
+        );
+      } else if (split[0] == 'control') {
+        return PageRouteBuilder(
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) =>
+                const ControlPage());
+        return MaterialPageRoute(
+          builder: (context) => const BluetoothDevicesList(),
+        );
+      } else if (split[0] == 'code_ide') {
+        Map<String, dynamic> args = settings.arguments as Map<String, dynamic>;
+        /*
             late TextEditingController controller = TextEditingController(
               text: 'https://powershell1.github.io/RoboWebpack/'// 'http://192.168.1.39:8080/',
             );
@@ -271,82 +251,100 @@ class _AppState extends State<App> {
             );
 
              */
-            return MaterialPageRoute(
-              builder: (context) => CodeIDE(
-                title: args['title'] ?? 'Code IDE Sample',
-                codeJson: args['content'],
-                uri: 'https://powershell1.github.io/RoboWebpack/',
-              ),
-            );
-          } else if (split[0] == 'test') {
-            Map<String, dynamic>? args =
-                settings.arguments as Map<String, dynamic>?;
-            if (args != null) {
-              return MaterialPageRoute(
-                builder: (context) => TestContent(testId: args['id']),
-              );
-            }
-            return PageRouteBuilder(
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-                pageBuilder: (context, animation1, animation2) =>
-                    const TestPage());
-          } else if (split[0] == 'bluetooth_devices') {
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const BluetoothDevicesList(),
-              transitionDuration: const Duration(milliseconds: 150),
-              reverseTransitionDuration: const Duration(milliseconds: 150),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                var begin = const Offset(1.0, 0.0);
-                var end = Offset.zero;
-                var curve = Curves.easeInOutSine;
-                var tween = Tween(begin: begin, end: end).chain(
-                  CurveTween(curve: curve),
-                );
-                var offsetAnimation = animation.drive(tween);
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
-            );
-          } else if (split[0] == 'home') {
-            return PageRouteBuilder(
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-              pageBuilder: (context, animation1, animation2) =>
-                  AuthExternal.homepage,
-            );
-          }
-        }
-        if (settings.name == '/login') {
-          return PageRouteBuilder(
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-            pageBuilder: (context, animation1, animation2) => const Login(),
-          );
-        } else if (settings.name == '/register') {
-          return MaterialPageRoute(builder: (context) => const Register());
-        }
-        if (settings.name == '/') {
-          Widget page = isLogged ? AuthExternal.homepage : const Login();
-          page = !widget.welcome ? const WelcomePage(type: 0) : page;
-          return PageRouteBuilder(
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-            pageBuilder: (context, animation1, animation2) => page,
-          );
-        }
         return MaterialPageRoute(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: Text('No route defined for\n"${settings.name}"'),
-            ),
+          builder: (context) => CodeIDE(
+            title: args['title'] ?? 'Code IDE Sample',
+            codeJson: args['content'],
+            uri: 'https://powershell1.github.io/RoboWebpack/',
           ),
         );
-      },
+      } else if (split[0] == 'test') {
+        Map<String, dynamic>? args =
+            settings.arguments as Map<String, dynamic>?;
+        if (args != null) {
+          return MaterialPageRoute(
+            builder: (context) => TestContent(testId: args['id']),
+          );
+        }
+        return PageRouteBuilder(
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) => const TestPage());
+      } else if (split[0] == 'bluetooth_devices') {
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const BluetoothDevicesList(),
+          transitionDuration: const Duration(milliseconds: 150),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var begin = const Offset(1.0, 0.0);
+            var end = Offset.zero;
+            var curve = Curves.easeInOutSine;
+            var tween = Tween(begin: begin, end: end).chain(
+              CurveTween(curve: curve),
+            );
+            var offsetAnimation = animation.drive(tween);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        );
+      } else if (split[0] == 'home') {
+        return PageRouteBuilder(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, animation1, animation2) =>
+              AuthExternal.homepage,
+        );
+      }
+    }
+    if (settings.name == '/login') {
+      return PageRouteBuilder(
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation1, animation2) => const Login(),
+      );
+    } else if (settings.name == '/register') {
+      return MaterialPageRoute(builder: (context) => const Register());
+    }
+    if (settings.name == '/') {
+      String pageNamed = auth.currentUser != null ? '/context/home' : '/login';
+      pageNamed = !widget.welcome ? '/welcome' : pageNamed;
+      return generateRoute(
+          RouteSettings(name: pageNamed, arguments: settings.arguments));
+    } else if (settings.name == '/welcome') {
+      return MaterialPageRoute(
+        builder: (context) => const WelcomePage(type: 0),
+      );
+    }
+    return MaterialPageRoute(
+      builder: (context) => Scaffold(
+        body: Center(
+          child: Text('No route defined for\n"${settings.name}"'),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Paw Pals',
+      themeMode: themeMode,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: const ColorScheme.light().copyWith(
+          onPrimary: Colors.black,
+          primaryContainer: Colors.black54,
+          onSecondary: Colors.black,
+          secondaryContainer: Colors.black26,
+          error: const Color(0xffcf6679),
+          onError: Colors.black,
+        ),
+      ),
+      onGenerateRoute: generateRoute,
     );
   }
 }

@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:robo_friends/classes/authentication.dart';
 import 'package:robo_friends/pages/inside/scaffoldTemplate.dart';
 import 'package:badges/badges.dart' as badges;
 
 import '../../../classes/assignmentClass.dart';
+import '../../../classes/profileClass.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -169,9 +171,17 @@ class _HomePageState extends State<HomePage> {
               ),
                */
               child: ClipOval(
-                child: Image.network(
-                  'https://picsum.photos/250?image=9',
-                  fit: BoxFit.cover,
+                child: StreamBuilder<Profile?>(
+                  stream: AuthExternal.profileStream.stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Image.memory(
+                        snapshot.data!.image!,
+                        fit: BoxFit.cover,
+                      );
+                    }
+                    return const SizedBox();
+                  },
                 ),
               ),
             ),

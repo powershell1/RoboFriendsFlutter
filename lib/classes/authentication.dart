@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:robo_friends/classes/profileClass.dart';
+import 'package:robo_friends/loadingDialog.dart';
 import 'package:robo_friends/main.dart';
 import 'package:robo_friends/pages/inside/scaffoldTemplate.dart';
 import 'package:robo_friends/pages/inside/navigator/homePage.dart';
@@ -9,53 +14,90 @@ import 'package:rxdart/rxdart.dart';
 
 import 'draftClass.dart';
 
+Future waitWhile(bool Function() test, [Duration pollInterval = Duration.zero]) {
+  var completer = Completer();
+  check() {
+    if (!test()) {
+      completer.complete();
+    } else {
+      Timer(pollInterval, check);
+    }
+  }
+  check();
+  return completer.future;
+}
+
 class AuthExternal {
   static const Widget homepage = HomePage();
   static BehaviorSubject<Profile?> profileStream = BehaviorSubject<Profile?>();
+  static StreamSubscription? profileSubscription;
+
+  static Future<void> initUser(User userData) async {
+    final usersRef = FirebaseFirestore.instance.collection('users');
+    final usersData = usersRef.doc(userData.uid);
+    bool isDataExist = false;
+    profileSubscription = usersData.snapshots().listen((ref) async {
+      Map<String, dynamic>? user = ref.data();
+      Uint8List? image = await storage
+          .ref('profile')
+          .child(user!['image'])
+          .getData();
+      Profile profile = Profile(
+        user,
+        fullName: user['fullname'],
+        mail: userData.email!,
+        assignments: [],
+        drafts: [
+          for (Map<String, dynamic> e in user['drafts'])
+            Draft(title: e['title']!, content: e['content']!, assignment: null)
+        ],
+        image: image,
+      );
+      AuthExternal.profileStream.stream.listen((event) {
+        print('Updating user data');
+        usersData.update({
+          'drafts': [
+            for (Draft e in event!.drafts)
+              {'title': e.title, 'content': e.content}
+          ]
+        });
+      });
+      profileStream.sink.add(profile);
+      isDataExist = true;
+    });
+    await waitWhile(() => !isDataExist);
+  }
 
   static Future<bool> login(
       String email, String password, BuildContext context) async {
+    final showDialog = LoadingIndicatorDialog();
+    showDialog.show(context);
     try {
       UserCredential credential = await auth.signInWithEmailAndPassword(
           email: email, password: password);
-      final usersRef = firestore.collection('users');
-      usersRef.doc(credential.user!.uid).snapshots().listen((ref) {
-        Map<String, dynamic>? user = ref.data();
-        Profile profile = Profile(
-          fullname: user!['fullname'],
-          mail: credential.user!.email!,
-          assignments: [],
-          drafts: [for (Map<String, dynamic> e in user['drafts']) Draft(title: e['title']!, content: e['content']!)],
-        );
-        print(storage.ref('profile').child(user['image']).getData());
-      });
+      await initUser(credential.user!);
+      _redirectHomePage(context);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
         print('Wrong password provided for that user.');
       }
     }
-    /*
-    if (email == 'admin' && password == 'root') {
-
-      _redirectHomePage(context);
-      return Future.value(true);
-    }
-     */
-
+    showDialog.dismiss();
     return true;
   }
 
   static void _redirectHomePage(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => homepage,
-      ),
-      (Route<dynamic> route) => false, // this will remove all previous routes
-    );
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
-  static void logout() {
+  static void logout(BuildContext context) async {
     // Logout logic
+    profileSubscription?.cancel();
+    await auth.signOut();
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+          (Route<dynamic> route) => false, // this will remove all previous routes
+    );
   }
 }
