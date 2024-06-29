@@ -27,10 +27,14 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+platform :ios, '13.0'
+
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  #This line. The tag depends on what Firebase SDK you have installed.
+  #pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '9.5.0'
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
     inherit! :search_paths

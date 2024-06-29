@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "790366293458",
+    "project_id": "robofriends-v2",
+    "storage_bucket": "robofriends-v2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790366293458:android:304c8bd9d75fe4f7ae4c0b",
+        "android_client_info": {
+          "package_name": "com.powershell1.robo_friends"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH9Puw3SEp3KnwkfN2PhmxLjqZAK00SAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

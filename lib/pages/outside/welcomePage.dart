@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:robo_friends/classes/animated_widget.dart';
+import 'package:robo_friends/classes/animatedWidget.dart';
 import 'package:robo_friends/main.dart';
 import 'package:robo_friends/classes/neonButton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,16 +89,11 @@ class _WelcomePageState extends State<WelcomePage>
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     double sWidth = screen.width;
-    List<double> iconSizes = [sWidth / 3, sWidth / 2];
+    List<double> iconSizes = [sWidth / 2, sWidth / 2];
 
     double animationValue = animation.value;
 
     return Scaffold(
-      appBar: AppBar(
-        systemOverlayStyle: App.theme.brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark,
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +105,7 @@ class _WelcomePageState extends State<WelcomePage>
                 opacity: 1,
                 translation: 0.1,
                 child: Image.asset(
-                  'assets/icons/${_currentPage == 0 ? 'idea' : _currentPage == 1 ? 'ipad_phone' : 'idea'}.png',
+                  'assets/icons/${_currentPage == 0 ? 'app_icon' : _currentPage == 1 ? 'ipad_phone' : 'idea'}.png',
                   width: iconSizes[_currentPage],
                 ),
               ),
@@ -170,7 +165,7 @@ class _WelcomePageState extends State<WelcomePage>
                         shape: BoxShape.circle,
                         color: i <= _currentPage
                             ? const Color(0xFF831EDE)
-                            : App.theme.alphaColor(137),
+                            : Colors.black.withAlpha(137),
                       ),
                     ),
                     const SizedBox(

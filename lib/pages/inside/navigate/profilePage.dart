@@ -4,7 +4,7 @@ import 'package:robo_friends/classes/assignmentClass.dart';
 import 'package:robo_friends/classes/draftClass.dart';
 import '../../../classes/timeString.dart';
 import '../../../classes/neonButton.dart';
-import '../navigator/draft_page.dart';
+import '../navigator/draftPage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:robo_friends/bluetooth/bluetooth.dart';
 import 'package:robo_friends/joystick/control_pad_plus.dart';
 import 'package:robo_friends/pages/inside/scaffoldTemplate.dart';
@@ -28,7 +29,7 @@ class _ControlPageState extends State<ControlPage> {
               Align(
                 alignment: Alignment.topRight,
                 child: IconButton(
-                  icon: Icon(BluetoothConnection.devices.valueOrNull!.isNotEmpty
+                  icon: Icon(FlutterBluePlus.connectedDevices.isNotEmpty
                       ? Icons.bluetooth_audio
                       : Icons.bluetooth_disabled, size: kToolbarHeight / 2),
                   onPressed: () {
@@ -44,14 +45,16 @@ class _ControlPageState extends State<ControlPage> {
                       //print(leftMotor-sin(degrees * pi / 180));
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Expanded(child: Container(color: Colors.red, width: 50, height: 50)),
+                          Expanded(child: Container(color: Colors.red, height: 50)),
+                          const SizedBox(width: 10),
+                          Expanded(child: Container(color: Colors.blue, height: 50)),
                         ],
                       ),
                     ],

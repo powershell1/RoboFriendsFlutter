@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -142,8 +143,8 @@ class InsideTemplate extends StatelessWidget {
                         ),
                         IconButton(
                           icon: CustomIcon(
-                              icon: Icons.drafts,
-                              unIcon: Icons.drafts_outlined,
+                              icon: CupertinoIcons.paperclip,
+                              unIcon: CupertinoIcons.square_pencil_fill,
                               active: navigationBar == ENavigationBar.draft),
                           onPressed: () {
                             Navigator.pushReplacementNamed(
@@ -163,7 +164,7 @@ class InsideTemplate extends StatelessWidget {
                         IconButton(
                           icon: CustomIcon(
                               icon: Icons.assignment,
-                              unIcon: Icons.assessment_outlined,
+                              unIcon: Icons.assignment_outlined,
                               active: navigationBar == ENavigationBar.test),
                           onPressed: () {
                             Navigator.pushReplacementNamed(

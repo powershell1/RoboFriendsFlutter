@@ -2,9 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:robo_friends/classes/auth_external.dart';
+import 'package:robo_friends/classes/authentication.dart';
 import 'package:robo_friends/classes/neonButton.dart';
 
+import '../../classes/outsideTextbox.dart';
 import '../../main.dart';
 
 class Login extends StatefulWidget {
@@ -12,67 +13,6 @@ class Login extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _LoginState();
-}
-
-class TextBox extends StatelessWidget {
-  final TextEditingController controller;
-  final String name;
-  final IconData prefixIcon;
-  final bool obscureText;
-  final TextCapitalization textCapitalization;
-  final TextInputType inputType;
-
-  const TextBox({
-    Key? key,
-    required this.controller,
-    required this.name,
-    required this.prefixIcon,
-    this.obscureText = false,
-    this.textCapitalization = TextCapitalization.none,
-    required this.inputType,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Color borderColor = App.theme.brightness == Brightness.dark
-        ? const Color(0xFF4CCD99)
-        : const Color(0xFF007F73);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10.0),
-      child: TextField(
-        enabled: true,
-        controller: controller,
-        textCapitalization: textCapitalization,
-        maxLength: 32,
-        maxLines: 1,
-        obscureText: obscureText,
-        keyboardType: inputType,
-        textAlign: TextAlign.start,
-        style: TextStyle(
-          color: App.theme.oppositeColor,
-          fontSize: 16,
-        ),
-        decoration: InputDecoration(
-          prefixIcon: Icon(prefixIcon),
-          isDense: true,
-          labelText: name,
-          counterText: "",
-          labelStyle:
-              TextStyle(color: App.theme.alphaColor(137)),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: borderColor),
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: App.theme.alphaColor(137)),
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class SignInWith extends StatelessWidget {
@@ -98,29 +38,25 @@ class SignInWith extends StatelessWidget {
         child: Container(
           height: kToolbarHeight,
           width: kToolbarHeight,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white10,
             shape: BoxShape.circle,
             border: Border.fromBorderSide(BorderSide(
-              color: App.theme.oppositeColor,
+              color: Colors.black,
               width: 1.0,
             )),
           ),
           child: ColorFiltered(
             colorFilter:
-                isApple && App.theme.brightness == Brightness.dark
-                    ? const ColorFilter.matrix(<double>[
-                        -1.0, 0.0, 0.0, 0.0, 255.0, //
-                        0.0, -1.0, 0.0, 0.0, 255.0, //
-                        0.0, 0.0, -1.0, 0.0, 255.0, //
-                        0.0, 0.0, 0.0, 1.0, 0.0, //
-                      ])
-                    : const ColorFilter.matrix(<double>[
+                isApple ? const ColorFilter.matrix(<double>[
                         1.0, 0.0, 0.0, 0.0, 0.0, //
                         0.0, 1.0, 0.0, 0.0, 0.0, //
                         0.0, 0.0, 1.0, 0.0, 0.0, //
                         0.0, 0.0, 0.0, 1.0, 0.0, //
-                      ]),
+                      ]) : const ColorFilter.mode(
+                        Colors.transparent,
+                        BlendMode.srcIn,
+                      ),
             child: Padding(
               padding: const EdgeInsets.all(14.0),
               child: Image.asset(
@@ -140,19 +76,17 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   late CurvedAnimation curve;
 
   final TextEditingController emailController = TextEditingController(
-    text: "admin",
+    text: "pummiphach@hotmail.com",
   );
   final TextEditingController passwordController = TextEditingController(
-    text: "root",
+    text: "1010_vV200",
   );
 
   bool isAnimated = false;
   bool isClicked = false;
 
   Color get textColor {
-    return App.theme.brightness == Brightness.dark
-        ? const Color(0xFF4CCD99)
-        : const Color(0xFF007F73);
+    return const Color(0xFF007F73);
   }
 
   @override
@@ -220,13 +154,13 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           const SizedBox(
                             height: 16.0,
                           ),
-                          TextBox(
+                          OutsideTextBox(
                             controller: emailController,
                             name: "Email",
                             prefixIcon: Icons.email,
                             inputType: TextInputType.emailAddress,
                           ),
-                          TextBox(
+                          OutsideTextBox(
                             controller: passwordController,
                             name: "Password",
                             prefixIcon: Icons.key,
@@ -250,22 +184,16 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                             child: RichText(
                               text: TextSpan(
                                 text: "Don't have an account? ",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color:
-                                  App.theme.oppositeColor,
+                                  Colors.black,
                                 ),
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: "Sign up",
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        if (!isAnimated) return;
-                                        setState(() {});
-                                        if (controller.isCompleted) {
-                                          controller.reverse();
-                                          return;
-                                        }
-                                        controller.forward();
+                                        Navigator.pushNamed(context, '/register');
                                       },
                                     style: TextStyle(
                                       color: textColor,

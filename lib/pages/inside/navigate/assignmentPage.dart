@@ -1,10 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:robo_friends/classes/assignmentClass.dart';
 import 'package:robo_friends/classes/draftClass.dart';
 import '../../../classes/timeString.dart';
 import '../../../classes/neonButton.dart';
-import '../navigator/draft_page.dart';
+import '../navigator/draftPage.dart';
 
 class AssignmentPage extends StatefulWidget {
   final Assignment assignment;
@@ -95,7 +96,7 @@ class _AssignmentPageState extends State<AssignmentPage> {
                           padding: const EdgeInsets.all(4),
                           child: Wrap(
                             children: [
-                              const Icon(Icons.attach_file),
+                              const Icon(CupertinoIcons.paperclip),
                               const SizedBox(width: 8),
                               Text(
                                 'Attach Draft',

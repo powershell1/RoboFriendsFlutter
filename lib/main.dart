@@ -1,35 +1,66 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:robo_friends/bluetooth/bluetooth.dart';
 import 'package:robo_friends/classes/assignmentClass.dart';
-import 'package:robo_friends/classes/auth_external.dart';
-import 'package:robo_friends/classes/theme_external.dart';
-import 'package:robo_friends/pages/inside/navigate/assignment_page.dart';
-import 'package:robo_friends/pages/inside/navigate/profile_page.dart';
-import 'package:robo_friends/pages/inside/navigator/control_page.dart';
-import 'package:robo_friends/pages/inside/navigator/draft_page.dart';
-import 'package:robo_friends/pages/test_bluetooth/bluetooth_page.dart';
-import 'package:robo_friends/pages/inside/navigate/code_ide.dart';
+import 'package:robo_friends/classes/authentication.dart';
+import 'package:robo_friends/pages/inside/navigate/assignmentPage.dart';
+import 'package:robo_friends/pages/inside/navigate/profilePage.dart';
+import 'package:robo_friends/pages/inside/navigate/testContent.dart';
+import 'package:robo_friends/pages/inside/navigator/controlPage.dart';
+import 'package:robo_friends/pages/inside/navigator/draftPage.dart';
+import 'package:robo_friends/pages/inside/navigator/testPage.dart';
+import 'package:robo_friends/pages/outside/register/registerPage.dart';
+import 'package:robo_friends/pages/test_bluetooth/bluetoothPage.dart';
+import 'package:robo_friends/pages/inside/navigate/codeIDE.dart';
 
 // import 'package:robo_friends/pages/inside/silver_page.dart';
-import 'package:robo_friends/pages/outside/login_page.dart';
-import 'package:robo_friends/pages/outside/welcome_page.dart';
+import 'package:robo_friends/pages/outside/loginPage.dart';
+import 'package:robo_friends/pages/outside/welcomePage.dart';
 import 'package:robo_friends/pages/test_bluetooth/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'firebase_options.dart';
+
+late final FirebaseApp app;
+late final FirebaseAuth auth;
+late final FirebaseFirestore firestore;
+late final FirebaseStorage storage;
+
+late final usersRef;
+
+// late final
+
+bool shouldUseFirebaseEmulator = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  // final isWelcomed = prefs.getBool('welcome') ?? false;
-  const isWelcomed = true;
+  final isWelcomed = prefs.getBool('welcome') ?? false;
+  app = await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  auth = FirebaseAuth.instanceFor(app: app);
+  firestore = FirebaseFirestore.instanceFor(app: app);
+  storage = FirebaseStorage.instanceFor(app: app);
+  if (shouldUseFirebaseEmulator) {
+    firestore.useFirestoreEmulator('localhost', 8080);
+    await storage.useStorageEmulator('localhost', 9199);
+    await auth.useAuthEmulator('localhost', 9099);
+  }
+  // const isWelcomed = true;
   print('Welcome: $isWelcomed');
   if (await Permission.location.status.isDenied) {
     await Permission.location.request();
@@ -53,8 +84,6 @@ class App extends StatefulWidget {
 
   final bool welcome;
 
-  static ThemeTemplate theme = ThemeTemplate();
-
   @override
   State<StatefulWidget> createState() => _AppState();
 }
@@ -69,7 +98,15 @@ extension IterableX<T> on Iterable<T> {
 class _AppState extends State<App> {
   late ThemeMode themeMode = ThemeMode.system;
 
-  bool isLogged = true;
+  bool isLogged = false;
+
+  Future<void> reloadSVGs(List<String> path) async {
+    for (String p in path) {
+      final loader = SvgAssetLoader(p);
+      await svg.cache
+          .putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -79,6 +116,10 @@ class _AppState extends State<App> {
         const AssetImage("assets/icons/companies/microsoft.png"), context);
     precacheImage(
         const AssetImage("assets/icons/companies/apple.png"), context);
+    reloadSVGs([
+      "assets/post_stage.svg",
+      "assets/school_stage.svg",
+    ]);
     super.didChangeDependencies();
   }
 
@@ -86,10 +127,6 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    isLogged = true;
-    var brightness =
-        SchedulerBinding.instance.platformDispatcher.platformBrightness;
-    App.theme.brightness = brightness;
     BluetoothConnection.startScans();
   }
 
@@ -110,20 +147,6 @@ class _AppState extends State<App> {
           onError: Colors.black,
         ),
       ),
-      /*
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: const ColorScheme.dark().copyWith(
-          onPrimary: Colors.white,
-          primaryContainer: Colors.white54,
-          onSecondary: Colors.white,
-          secondaryContainer: Colors.white24,
-          error: const Color(0xffcf6679),
-          onError: Colors.white,
-        ),
-      ),
-
-       */
       onGenerateRoute: (settings) {
         /*
         home: Stack(
@@ -175,8 +198,8 @@ class _AppState extends State<App> {
             return PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   AssignmentPage(
-                    assignment: args,
-                  ),
+                assignment: args,
+              ),
               transitionDuration: const Duration(milliseconds: 150),
               reverseTransitionDuration: const Duration(milliseconds: 150),
               transitionsBuilder:
@@ -255,6 +278,19 @@ class _AppState extends State<App> {
                 uri: 'https://powershell1.github.io/RoboWebpack/',
               ),
             );
+          } else if (split[0] == 'test') {
+            Map<String, dynamic>? args =
+                settings.arguments as Map<String, dynamic>?;
+            if (args != null) {
+              return MaterialPageRoute(
+                builder: (context) => TestContent(testId: args['id']),
+              );
+            }
+            return PageRouteBuilder(
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+                pageBuilder: (context, animation1, animation2) =>
+                    const TestPage());
           } else if (split[0] == 'bluetooth_devices') {
             return PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
@@ -276,6 +312,13 @@ class _AppState extends State<App> {
                 );
               },
             );
+          } else if (split[0] == 'home') {
+            return PageRouteBuilder(
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+              pageBuilder: (context, animation1, animation2) =>
+                  AuthExternal.homepage,
+            );
           }
         }
         if (settings.name == '/login') {
@@ -284,21 +327,10 @@ class _AppState extends State<App> {
             reverseTransitionDuration: Duration.zero,
             pageBuilder: (context, animation1, animation2) => const Login(),
           );
+        } else if (settings.name == '/register') {
+          return MaterialPageRoute(builder: (context) => const Register());
         }
-        if (settings.name == '/' || settings.name == '/context/home') {
-          /*
-          return PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) {
-              return CodeIDE(
-                title: 'Code IDE Sample',
-                codeJson: '',
-              );
-            },
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          );
-           */
-          // return MaterialPageRoute(builder: (context) => TestBluetooth());
+        if (settings.name == '/') {
           Widget page = isLogged ? AuthExternal.homepage : const Login();
           page = !widget.welcome ? const WelcomePage(type: 0) : page;
           return PageRouteBuilder(

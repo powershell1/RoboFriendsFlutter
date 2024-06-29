@@ -4,8 +4,10 @@ import 'package:rxdart/rxdart.dart';
 import 'draftClass.dart';
 
 class Profile {
-  final String name;
+  final String fullname;
   final String mail;
+  final List<Draft> drafts;
+  final List<Assignment> assignments;
   /*
   final List<Assignment> assignments;
   final List<Draft> drafts;
@@ -13,8 +15,10 @@ class Profile {
    */
 
   Profile({
-    required this.name,
+    required this.fullname,
     required this.mail,
+    required this.assignments,
+    required this.drafts,
     /*
     this.assignments = const [],
     this.drafts = const [],
