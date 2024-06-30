@@ -1,4 +1,10 @@
+import 'dart:convert';
+
+import 'package:convert/convert.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:crypto/crypto.dart';
+
+import 'hashable.dart';
 
 class AssignmentList {
   static final BehaviorSubject<List<Assignment>> assignList = BehaviorSubject.seeded([
@@ -17,10 +23,13 @@ class AssignmentList {
   }
 }
 
-class Assignment {
+class Assignment with HashableObject {
   String title;
   DateTime due;
   String instruction;
 
   Assignment({required this.title, required this.instruction, required this.due});
+
+  @override
+  String get hash => hex.encode(sha256.convert(utf8.encode(title + instruction + due.toString())).bytes);
 }

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:robo_friends/classes/assignmentClass.dart';
 import 'package:robo_friends/classes/draftClass.dart';
+import 'package:robo_friends/loadingDialog.dart';
 import 'package:uuid/uuid.dart';
 import '../../../classes/authentication.dart';
 import '../../../classes/profileClass.dart';
@@ -22,9 +23,11 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   Future pickImage() async {
     try {
+      LoadingIndicatorDialog dialog = LoadingIndicatorDialog();
+      dialog.show(context);
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image == null) return;
+      if (image == null) return dialog.dismiss();
       final Uint8List imageBytes = await image.readAsBytes();
       Profile profile = AuthExternal.profileStream.value!;
       String newFile = '${const Uuid().v4()}.${image.name.split('.').last}';
@@ -39,10 +42,13 @@ class _ProfilePageState extends State<ProfilePage> {
       folder
           .child(AuthExternal.profileStream.value!.fullNode['image'])
           .delete();
+      dialog.dismiss();
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
   }
+
+  bool isDoubleTap = false;
 
   @override
   Widget build(BuildContext context) {
@@ -91,13 +97,34 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           child: GestureDetector(
-                            onTap: pickImage,
+                            onTap: () {
+                              if (isDoubleTap) pickImage();
+                              isDoubleTap = !isDoubleTap;
+                              setState(() {});
+                            },
                             child: ClipOval(
-                              child: Image.memory(
-                                snapshot.data!.image!,
-                                width: kToolbarHeight * 2.5,
-                                height: kToolbarHeight * 2.5,
-                                fit: BoxFit.cover,
+                              child: Stack(
+                                children: [
+                                  Image.memory(
+                                    snapshot.data!.image!,
+                                    width: kToolbarHeight * 2.5,
+                                    height: kToolbarHeight * 2.5,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 100),
+                                    child: isDoubleTap
+                                        ? Container(
+                                            width: kToolbarHeight * 2.5,
+                                            height: kToolbarHeight * 2.5,
+                                            color: Colors.black.withOpacity(0.5),
+                                            child: const Center(
+                                              child: Text('Change profile.', style: TextStyle(color: Colors.white)),
+                                            ),
+                                          )
+                                        : const SizedBox(),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

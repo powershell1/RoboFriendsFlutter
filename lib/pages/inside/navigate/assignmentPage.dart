@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:robo_friends/classes/assignmentClass.dart';
 import 'package:robo_friends/classes/draftClass.dart';
+import 'package:robo_friends/loadingDialog.dart';
 import '../../../classes/timeString.dart';
 import '../../../classes/neonButton.dart';
 import '../navigator/draftPage.dart';
@@ -132,7 +133,8 @@ class _AssignmentPageState extends State<AssignmentPage> {
                       neon: false,
                       onPressed: () {
                         if (draftCache == null) return;
-                        print("Submitted!");
+                        LoadingIndicatorDialog dialog = LoadingIndicatorDialog();
+                        dialog.show(context);
                         AssignmentList.removeAssignment(widget.assignment);
                         DraftList.removeDraft(draftCache!);
                         Navigator.pop(context);

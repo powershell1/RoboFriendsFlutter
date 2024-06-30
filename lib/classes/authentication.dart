@@ -32,10 +32,34 @@ class AuthExternal {
   static BehaviorSubject<Profile?> profileStream = BehaviorSubject<Profile?>();
   static StreamSubscription? profileSubscription;
 
+  static Profile? beforeUpdate;
+
   static Future<void> initUser(User userData) async {
+    print('inited');
     final usersRef = FirebaseFirestore.instance.collection('users');
     final usersData = usersRef.doc(userData.uid);
     bool isDataExist = false;
+    /*
+    usersData.snapshots().listen((ref) async {
+      Map<String, dynamic>? user = ref.data();
+      Uint8List? image = await storage
+          .ref('profile')
+          .child(user!['image'])
+          .getData();
+      Profile profile = Profile(
+        user,
+        fullName: user['fullname'],
+        mail: userData.email!,
+        assignments: [],
+        drafts: [
+          for (Map<String, dynamic> e in user['drafts'])
+            Draft(title: e['title']!, content: e['content']!, assignment: null)
+        ],
+        image: image,
+      );
+    });
+
+     */
     profileSubscription = usersData.snapshots().listen((ref) async {
       Map<String, dynamic>? user = ref.data();
       Uint8List? image = await storage
@@ -53,19 +77,43 @@ class AuthExternal {
         ],
         image: image,
       );
-      AuthExternal.profileStream.stream.listen((event) {
-        print('Updating user data');
-        usersData.update({
-          'drafts': [
-            for (Draft e in event!.drafts)
-              {'title': e.title, 'content': e.content}
-          ]
-        });
-      });
+      // beforeUpdate = profile;
       profileStream.sink.add(profile);
       isDataExist = true;
     });
     await waitWhile(() => !isDataExist);
+  }
+
+  static Future<void> updateProfile(String updateName) async {
+    if (updateName == 'drafts') {
+      Profile profile = profileStream.stream.value!;
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(profile.fullNode['uid'])
+          .update({
+        'drafts': [
+          for (Draft e in profile.drafts)
+            {
+              'title': e.title,
+              'content': e.content,
+            }
+        ]
+      });
+    }
+    /*
+    profileStream.stream.listen((event) {
+      print(beforeUpdate);
+      print(event!.drafts);
+      if (beforeUpdate != null) {
+        Function eq = const ListEquality().equals;
+        if (!eq(beforeUpdate!.drafts, event!.drafts)) {
+          print('update!');
+        }
+      }
+      // beforeUpdate = event;
+    });
+
+     */
   }
 
   static Future<bool> login(
@@ -92,7 +140,8 @@ class AuthExternal {
 
   static void logout(BuildContext context) async {
     // Logout logic
-    profileSubscription?.cancel();
+    print('hello ');
+    // profileSubscription?.cancel();
     await auth.signOut();
     Navigator.pushNamedAndRemoveUntil(
       context,
